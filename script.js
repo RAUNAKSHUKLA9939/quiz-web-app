@@ -1,3 +1,5 @@
+let timeLeft = 10;
+let timer;
 let questions = {
     os: [
         {q:"Which is not OS?", o:["Windows","Linux","Oracle","Mac"], a:3},
@@ -136,6 +138,22 @@ function startQuiz() {
 
     loadQuestion();
 }
+function startTimer() {
+    timeLeft = 10;
+    document.getElementById("timer").innerText = "Time: " + timeLeft;
+
+    clearInterval(timer);
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = "Time: " + timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            nextQuestion(); // auto skip
+        }
+    }, 1000);
+}
  
 function loadQuestion() {
     let q = questions[selectedSubject][index];
@@ -151,15 +169,18 @@ function loadQuestion() {
     document.getElementById("opt2").innerText = "2) " + q.o[1];
     document.getElementById("opt3").innerText = "3) " + q.o[2];
     document.getElementById("opt4").innerText = "4) " + q.o[3];
+    startTimer();
 }
  
-function selectOption(option) {
+ function selectOption(option) {
+    clearInterval(timer); // ✅ stop timer
+
     if (option === questions[selectedSubject][index].a) {
         score++;
     }
+
     nextQuestion();
 }
- 
 function nextQuestion() {
     index++;
 
@@ -169,9 +190,9 @@ function nextQuestion() {
         loadQuestion();
     }
 }
-
- 
 function submitQuiz() {
+    clearInterval(timer); // ✅ stop timer
+
     document.getElementById("quizArea").classList.add("hide");
     document.getElementById("resultArea").classList.remove("hide");
 
