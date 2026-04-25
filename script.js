@@ -145,6 +145,11 @@ function startTimer() {
     clearInterval(timer);
 
     timer = setInterval(() => {
+        if (timeLeft <= 5) {
+    document.getElementById("timer").style.color = "red";
+} else {
+    document.getElementById("timer").style.color = "green";
+}
         timeLeft--;
         document.getElementById("timer").innerText = "Time: " + timeLeft;
 
@@ -162,7 +167,8 @@ function loadQuestion() {
         alert("Error loading question");
         return;
     }
-
+    document.getElementById("progress").innerText =
+    "Question " + (index + 1) + " / " + questions[selectedSubject].length;
     document.getElementById("questionText").innerText = (index + 1) + ". " + q.q;
 
     document.getElementById("opt1").innerText = "1) " + q.o[0];
@@ -171,15 +177,35 @@ function loadQuestion() {
     document.getElementById("opt4").innerText = "4) " + q.o[3];
     startTimer();
 }
- 
- function selectOption(option) {
-    clearInterval(timer); // ✅ stop timer
+function selectOption(option) {
+    clearInterval(timer);
 
-    if (option === questions[selectedSubject][index].a) {
-        score++;
-    }
+    let correct = questions[selectedSubject][index].a;
 
-    nextQuestion();
+    let buttons = document.querySelectorAll(".optBtn");
+
+    buttons.forEach((btn, i) => {
+        if (i + 1 === correct) {
+            btn.style.background = "green";
+            btn.style.color = "white";
+        }
+        if (i + 1 === option && option !== correct) {
+            btn.style.background = "red";
+            btn.style.color = "white";
+        }
+        btn.disabled = true;
+    });
+
+    if (option === correct) score++;
+
+    setTimeout(() => {
+        buttons.forEach(btn => {
+            btn.style.background = "";
+            btn.style.color = "";
+            btn.disabled = false;
+        });
+        nextQuestion();
+    }, 800);
 }
 function nextQuestion() {
     index++;
@@ -196,6 +222,14 @@ function submitQuiz() {
     document.getElementById("quizArea").classList.add("hide");
     document.getElementById("resultArea").classList.remove("hide");
 
-    document.getElementById("scoreText").innerText =
-        "Your Score: " + score + " / " + questions[selectedSubject].length;
+    let percent = (score / questions[selectedSubject].length) * 100;
+
+let message = "";
+
+if (percent >= 80) message = "Excellent 🔥";
+else if (percent >= 50) message = "Good 👍";
+else message = "Keep Practicing 💪";
+
+document.getElementById("scoreText").innerText =
+    `Score: ${score}/${questions[selectedSubject].length} (${percent.toFixed(1)}%)\n${message}`; 
 }
